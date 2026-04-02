@@ -247,7 +247,8 @@ async def telegram_webhook(request: Request):
     """处理 Telegram 消息 - 极速版"""
     try:
         body = await request.json()
-    except:
+    except Exception as e:
+        print(f"[Error] JSON解析失败: {e}")
         return {"ok": False}
     
     message = body.get("message", {})
@@ -267,52 +268,70 @@ async def telegram_webhook(request: Request):
     user_id = str(chat_id)
     print(f"[收到] {text[:50]}")
     
-    # 记录用户消息
-    memory.add(user_id, "user", text)
-    
-    # 快速选择 Agent（不用 AI 分类）
-    agent = pick_agent(text)
-    agent_name = agent["name"]
-    emoji = agent["emoji"]
-    
-    # 发送处理中提示
-    thinking_msg = await send_message(
-        chat_id,
-        f"{emoji} **{agent_name}** 正在思考...\n\n⏳"
-    )
-    
-    # 检查缓存
-    cached = cache.get(text, agent_name)
-    if cached:
-        # 有缓存，直接发送
-        result_text = emoji + " " + cached
+    try:
+        # 记录用户消息
+        memory.add(user_id, "user", text)
+        
+        # 快速选择 Agent（不用 AI 分类）
+        agent = pick_agent(text)
+        agent_name = agent["name"]
+        emoji = agent["emoji"]
+        print(f"[路由] {agent_name}")
+        
+        # 发送处理中提示
+        thinking_msg = await send_message(
+            chat_id,
+            f"{emoji} **{agent_name}** 正在思考...\n\n⏳"
+        )
+        
+        # 检查缓存
+        cached = cache.get(text, agent_name)
+        if cached:
+            # 有缓存，直接发送
+            result_text = emoji + " " + cached
+            await send_message(chat_id, result_text)
+            if thinking_msg and "message_id" in thinking_msg:
+                await edit_message(chat_id, thinking_msg["message_id"], result_text)
+            return {"ok": True}
+        
+        # 构建消息
+        context = memory.get(user_id)
+        messages = [{"role": "system", "content": agent["system"]}]
+        
+        # 添加上下文（最多 3 轮）
+        for msg in context[-6:]:
+            messages.append({"role": msg["role"], "content": msg["content"]})
+        
+        messages.append({"role": "user", "content": text})
+        
+        # 调用 AI（只调用一次！）
+        print(f"[AI调用] 开始...")
+        response = await call_qwen(messages)
+        print(f"[AI响应] 长度={len(response)}")
+        
+        # 缓存结果
+        cache.set(text, agent_name, response)
+        
+        # 记录 AI 回复
+        memory.add(user_id, "assistant", response)
+        
+        # 发送最终结果
+        result_text = emoji + " " + response
         await send_message(chat_id, result_text)
+        
+        # 更新"处理中"消息
         if thinking_msg and "message_id" in thinking_msg:
             await edit_message(chat_id, thinking_msg["message_id"], result_text)
+        
+        print(f"[完成] 回复已发送")
         return {"ok": True}
-    
-    # 构建消息
-    context = memory.get(user_id)
-    messages = [{"role": "system", "content": agent["system"]}]
-    
-    # 添加上下文（最多 3 轮）
-    for msg in context[-6:]:
-        messages.append({"role": msg["role"], "content": msg["content"]})
-    
-    messages.append({"role": "user", "content": text})
-    
-    # 调用 AI（只调用一次！）
-    response = await call_qwen(messages)
-    
-    # 缓存结果
-    cache.set(text, agent_name, response)
-    
-    # 记录 AI 回复
-    memory.add(user_id, "assistant", response)
-    
-    # 发送最终结果
-    result_text = emoji + " " + response
-    await send_message(chat_id, result_text)
+        
+    except Exception as e:
+        import traceback
+        print(f"[Error] 处理消息异常:")
+        traceback.print_exc()
+        await send_message(chat_id, f"❌ 处理出错: {type(e).__name__}")
+        return {"ok": True}
     
     # 更新"处理中"消息
     if thinking_msg and "message_id" in thinking_msg:
