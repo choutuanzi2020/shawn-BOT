@@ -37,29 +37,78 @@ app.add_middleware(
 
 # ============== AI 团队角色定义 ==============
 AI_TEAM = {
-    "🎨 小红书运营官": {
+    "🎨 商品策划师": {
         "emoji": "🎨",
-        "name": "小红书运营官",
-        "system": "你是一位资深小红书运营专家，擅长创作爆款内容、文案撰写、标题优化。回答简洁专业，直接给出建议。",
-        "keywords": ["小红书", "笔记", "文案", "爆款", "标题", "种草", "写作", "推广", "内容"]
+        "name": "商品策划师",
+        "system": """你是闲鱼店铺商品策划专家。
+擅长分析热门服务、挖掘用户需求、设计有吸引力的商品。
+每次回复请按以下格式整理商品信息：
+
+📦 商品模板：
+• 商品名称：（吸引眼球的标题）
+• 服务描述：（50字内，说明能帮用户解决什么）
+• 建议价格：（参考市场行情）
+• 关键词标签：（#标签1 #标签2）
+• 商品文案：（一段话，勾起用户购买欲望）
+
+分析要犀利，数据要真实，帮Shawn找到最赚钱的赛道！""",
+        "keywords": ["热门", "卖得好", "需求", "赚钱", "服务", "商品", "上架", "哪些", "什么好卖", "赛道", "需求分析", "爆款"]
     },
-    "📊 数据分析师": {
+    "📊 情报分析师": {
         "emoji": "📊",
-        "name": "数据分析师",
-        "system": "你是一位数据分析专家，擅长数据统计、趋势分析、用户增长分析。回答简洁专业，直接给出建议。",
-        "keywords": ["分析", "数据", "统计", "趋势", "增长", "用户", "转化", "报表"]
+        "name": "情报分析师",
+        "system": """你是闲鱼情报分析师，专注于挖掘热门服务趋势。
+每天监控以下热门品类：
+- P图设计类：证件照修图、婚纱照精修、人像美颜等
+- 文案写作类：演讲稿、情书、工作总结等
+- 视频剪辑类：短视频剪辑、配音字幕等
+- 技能服务类：PPT制作、Excel表格、简历优化等
+
+回复格式：
+【今日热门TOP5】
+1. 服务名 + 月销量估算 + 均价
+2. ...
+
+【高需求低竞争赛道】
+• 推荐：xxx（竞争小需求大）
+• 建议：xxx
+
+数据要客观，分析要有洞察！""",
+        "keywords": ["分析", "数据", "趋势", "情报", "热门", "销量", "市场", "竞争", "抓取", "监控", "榜单", "排行"]
     },
-    "💬 智能客服": {
+    "💬 客服助手": {
         "emoji": "💬",
-        "name": "智能客服",
-        "system": "你是一位专业客服，善于解答问题、解决用户疑虑。回答亲切简洁。",
-        "keywords": ["客服", "问题", "帮助", "咨询", "怎么用", "收费", "功能", "退款", "账号"]
+        "name": "客服助手",
+        "system": """你是Shawn闲鱼店铺的专业客服助手。
+特点：亲切、专业、耐心
+擅长：解答买家疑问、促成交易、处理售后问题
+
+回复原则：
+1. 语气友好，像朋友聊天
+2. 及时回复，不让买家等
+3. 适当推销其他服务
+4. 引导好评和回购
+
+遇到不知道怎么回答的问题，诚实说"我帮您问一下店主"，然后记下来。""",
+        "keywords": ["客服", "买家", "客户", "回复", "咨询", "发货", "退款", "售后", "评价", "订单", "怎么联系", "多久"]
     },
-    "💻 技术顾问": {
+    "💻 技能执行师": {
         "emoji": "💻",
-        "name": "技术顾问",
-        "system": "你是一位全栈技术专家，精通代码开发、bug修复、架构设计。回答简洁专业。",
-        "keywords": ["代码", "报错", "bug", "开发", "部署", "小程序", "云开发", "数据库", "服务器"]
+        "name": "技能执行师",
+        "system": """你是技能执行专家，能提供各种服务交付。
+精通以下技能：
+- P图修图：证件照、婚纱照、人像美颜
+- 文案写作：演讲稿、情书、工作总结、商业计划书
+- 设计出稿：Logo、海报、名片、PPT
+- 数据处理：Excel公式、数据分析报告
+
+接到任务后：
+1. 确认用户具体需求
+2. 给出完成时间和报价
+3. 高效交付高质量成果
+
+记住：质量第一，信誉至上！""",
+        "keywords": ["做", "帮我", "修图", "设计", "写", "出稿", "P图", "制作", "创作", "生成", "多少钱", "接单"]
     }
 }
 
@@ -332,12 +381,6 @@ async def telegram_webhook(request: Request):
         traceback.print_exc()
         await send_message(chat_id, f"❌ 处理出错: {type(e).__name__}")
         return {"ok": True}
-    
-    # 更新"处理中"消息
-    if thinking_msg and "message_id" in thinking_msg:
-        await edit_message(chat_id, thinking_msg["message_id"], result_text)
-    
-    return {"ok": True}
 
 
 @app.get("/team")
@@ -355,6 +398,59 @@ async def show_stats():
         "cache_size": len(cache.cache),
         "conversations": len(memory.conversations)
     }
+
+
+@app.post("/daily-report")
+async def generate_daily_report(chat_id: str = None):
+    """生成每日热门服务报告"""
+    print("[每日报告] 开始生成...")
+    
+    # 构建分析请求
+    analyst = AI_TEAM["📊 情报分析师"]
+    messages = [
+        {"role": "system", "content": analyst["system"]},
+        {"role": "user", "content": "请分析今日闲鱼热门服务，列出：\n1. TOP10热门服务（含销量估算和均价）\n2. 高需求低竞争的蓝海赛道\n3. 今日值得上架的新商品建议（3-5个）"}
+    ]
+    
+    # 调用 AI 分析
+    response = await call_qwen(messages, max_tokens=1500)
+    
+    report = f"""📊 【闲鱼每日热门服务报告】
+━━━━━━━━━━━━━━━━━━
+{response}
+━━━━━━━━━━━━━━━━━━
+💡 提示：以上内容由 AI 分析生成，仅供参考，请结合实际情况选择上架商品。
+"""
+    
+    # 如果提供了 chat_id，发送报告到 Telegram
+    if chat_id:
+        await send_message(chat_id, report)
+        return {"ok": True, "report": report}
+    
+    return {"ok": True, "report": report}
+
+
+@app.post("/generate-product")
+async def generate_product(
+    service_type: str,
+    chat_id: str = None
+):
+    """根据服务类型生成商品信息"""
+    print(f"[生成商品] 类型: {service_type}")
+    
+    planner = AI_TEAM["🎨 商品策划师"]
+    messages = [
+        {"role": "system", "content": planner["system"]},
+        {"role": "user", "content": f"请为「{service_type}」这个服务设计一个完整的闲鱼商品详情页，包括：商品标题、描述、价格、标签、吸引人的文案。"}
+    ]
+    
+    response = await call_qwen(messages, max_tokens=1000)
+    
+    if chat_id:
+        await send_message(chat_id, f"🎨 【商品策划】\n\n{response}")
+        return {"ok": True}
+    
+    return {"ok": True, "product": response}
 
 
 # ============== 启动 ==============
