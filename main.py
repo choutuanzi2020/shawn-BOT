@@ -217,13 +217,17 @@ tool_registry = ToolRegistry()
 class BaseAgent:
     """Agent 基类"""
     
-    def __init__(self, name: str, emoji: str, description: str):
+    def __init__(self, name: str, emoji: str, description: str, tools: List[str] = None):
         self.name = name
         self.emoji = emoji
         self.description = description
+        # 先设置 tools，因为 _get_system_prompt 可能需要
+        if tools is not None:
+            self.tools = tools
+        else:
+            self.tools = tool_registry.get_tools(name)
         self.system_prompt = self._get_system_prompt()
         self.inbox: asyncio.Queue = message_bus.subscribe(name)
-        self.tools = tool_registry.get_tools(name)
     
     def _get_system_prompt(self) -> str:
         """获取系统提示"""
@@ -259,10 +263,12 @@ class ExpertAgent(BaseAgent):
     """专家 Agent"""
     
     def __init__(self, name: str, emoji: str, description: str, expertise: str, tools: List[str] = None):
-        super().__init__(name, emoji, description)
+        # 先设置属性，因为 _get_system_prompt 会用到
         self.expertise = expertise
+        default_tools = ["get_time"]
         if tools:
-            self.tools = tools + ["get_time"]
+            default_tools = tools + default_tools
+        super().__init__(name, emoji, description, tools=default_tools)
     
     def _get_system_prompt(self) -> str:
         """获取专家系统提示"""
@@ -270,7 +276,7 @@ class ExpertAgent(BaseAgent):
         knowledge_text = "\n".join([f"- {k}" for k in knowledge]) if knowledge else "暂无专业知识积累"
         
         return f"""你是 {self.name} {self.emoji}
-{description}
+{self.description}
 
 你的专业领域：{self.expertise}
 
