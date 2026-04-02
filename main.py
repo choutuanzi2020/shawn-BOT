@@ -5,7 +5,7 @@ import os
 import urllib.request
 import urllib.parse
 import json
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 import httpx
 
@@ -111,63 +111,4 @@ async def send_telegram_message(chat_id, text):
     url = TELEGRAM_API_URL + "/sendMessage"
     data = urllib.parse.urlencode({
         "chat_id": str(chat_id),
-        "text": clean_content
-    }).encode('utf-8')
-    try:
-        req = urllib.request.Request(url, data=data, method='POST')
-        with urllib.request.urlopen(req, timeout=15) as resp:
-            print(f"Telegram: {resp.status}")
-    except Exception as e:
-        print(f"Telegram Error: {e}")
-
-@app.get("/")
-async def root():
-    return {
-        "status": "ok",
-        "bot": "Shawn AI Team Bot",
-        "version": "3.1.0",
-        "team": [v['emoji'] + " " + k for k, v in AI_TEAM.items()]
-    }
-
-@app.post("/telegram")
-async def telegram_webhook(request):
-    try:
-        body = await request.json()
-    except:
-        raise HTTPException(status_code=400, detail="Invalid JSON")
-    message = body.get("message", {})
-    if not message:
-        return {"ok": True}
-    if message.get("from", {}).get("is_bot"):
-        return {"ok": True}
-    text = message.get("text", "")
-    chat_id = message.get("chat", {}).get("id")
-    if not text or not chat_id:
-        return {"ok": True}
-    print(f"Received: {text}")
-    agent_name = pick_agent(text)
-    agent = AI_TEAM[agent_name]
-    print(f"Agent: {agent['emoji']} {agent_name}")
-    await send_telegram_message(chat_id, agent['emoji'] + " " + agent_name + " 处理中...")
-    reply = await call_llm(text, agent_name)
-    await send_telegram_message(chat_id, reply)
-    return {"ok": True}
-
-@app.get("/team")
-async def show_team():
-    return {"team": [{"name": k, "emoji": v["emoji"]} for k, v in AI_TEAM.items()]}
-
-@app.post("/chat")
-async def chat(request):
-    body = await request.json()
-    message = body.get("message", "")
-    if not message:
-        raise HTTPException(status_code=400, detail="No message")
-    agent_name = pick_agent(message)
-    reply = await call_llm(message, agent_name)
-    return {"agent": agent_name, "reply": reply}
-
-if __name__ == "__main__":
-    import uvicorn
-    port = int(os.getenv("PORT", "8000"))
-    uvicorn.run(app, host="0.0.0.0", port=port)
+        "
