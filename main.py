@@ -318,17 +318,18 @@ class OrchestratorAgent(BaseAgent):
     """调度 Agent - 负责任务分析和分配"""
     
     def __init__(self):
-        super().__init__(
-            name="AI中枢",
-            emoji="🤖",
-            description="Shawn的私人AI助手，聪明、高效、有个性，负责协调团队工作"
-        )
+        # 先设置 team_members，因为 _get_system_prompt 会用到
         self.team_members = {
             "小红书运营官": "🎨",
             "数据分析师": "📊",
             "智能客服": "💬",
             "技术顾问": "💻"
         }
+        super().__init__(
+            name="AI中枢",
+            emoji="🤖",
+            description="Shawn的私人AI助手，聪明、高效、有个性，负责协调团队工作"
+        )
     
     def _get_system_prompt(self) -> str:
         """获取调度系统提示"""
