@@ -1,13 +1,2 @@
+# Railway Python 部署 - Nixpacks 自动检测 requirements.txt
 providers = ["python"]
-
-[env]
-PYTHON_VERSION = "3.11"
-
-[phases.install]
-cmds = ["pip install -r requirements.txt"]
-
-[phases.build]
-cmds = ["echo 'Build complete'"]
-
-[start]
-cmd = "uvicorn bot.main:app --host 0.0.0.0 --port $PORT"
