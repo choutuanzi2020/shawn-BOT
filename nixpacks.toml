@@ -1,0 +1,11 @@
+[providers]
+python = true
+
+[phase.install]
+nixpacksEnv = { PYTHON_VERSION = "3.11" }
+
+[phase.build]
+cmds = ["pip install -r requirements.txt"]
+
+[phase.start]
+cmds = ["uvicorn bot.main:app --host 0.0.0.0 --port $PORT"]
