@@ -84,4 +84,130 @@ async def call_llm(message, agent_name="AI中枢"):
 
     headers = {
         "Authorization": f"Bearer {QWEN_API_KEY}",
-        "Content-Type":
+        "Content-Type": "application/json"
+    }
+
+    payload = {
+        "model": QWEN_MODEL,
+        "messages": [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": message}
+        ],
+        "max_tokens": 1500,
+        "temperature": 0.7
+    }
+
+    try:
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            response = await client.post(QWEN_API_URL, headers=headers, json=payload)
+            print(f"[{agent_name}] API: {response.status_code}")
+            response.raise_for_status()
+            data = response.json()
+            reply = data["choices"][0]["message"]["content"]
+            return f"{emoji} *{agent_name}*
+
+{reply}"
+    except Exception as e:
+        print(f"[{agent_name}] Error: {e}")
+        return f"Error: {str(e)}"
+
+
+# ============== 文本清理 ==============
+def clean_text(text):
+    result = []
+    for c in text:
+        if c.isprintable() or c == '
+':
+            result.append(c)
+    text = ''.join(result)
+    if len(text) > 4000:
+        text = text[:4000] + "..."
+    return text
+
+
+# ============== Telegram 发送 ==============
+async def send_telegram_message(chat_id, text):
+    clean_content = clean_text(text)
+    url = f"{TELEGRAM_API_URL}/sendMessage"
+    data = urllib.parse.urlencode({
+        "chat_id": str(chat_id),
+        "text": clean_content
+    }).encode('utf-8')
+
+    try:
+        req = urllib.request.Request(url, data=data, method='POST')
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            print(f"Telegram 发送: {resp.status}")
+    except Exception as e:
+        print(f"Telegram 发送失败: {e}")
+
+
+# ============== 路由 ==============
+@app.get("/")
+async def root():
+    return {
+        "status": "ok",
+        "bot": "Shawn AI Team Bot",
+        "version": "3.0.0",
+        "engine": "通义千问"
+    }
+
+
+@app.post("/telegram")
+async def telegram_webhook(request: Request):
+    try:
+        body = await request.json()
+    except Exception:
+        return {"ok": False, "error": "Invalid JSON"}
+
+    message = body.get("message", {})
+    if not message:
+        return {"ok": True}
+
+    # 忽略机器人消息
+    if message.get("from", {}).get("is_bot"):
+        return {"ok": True}
+
+    text = message.get("text", "")
+    chat_id = message.get("chat", {}).get("id")
+
+    if not text or not chat_id:
+        return {"ok": True}
+
+    print(f"收到消息: {text}")
+
+    # 选择 AI 角色
+    agent_name = pick_agent(text)
+    agent = AI_TEAM[agent_name]
+    print(f"分配给: {agent['emoji']} {agent_name}")
+
+    # 发送处理中提示
+    await send_telegram_message(
+        chat_id,
+        f"⏳ {agent['emoji']} **{agent_name}** 正在处理..."
+    )
+
+    # 调用 AI
+    reply = await call_llm(text, agent_name)
+
+    # 发送回复
+    await send_telegram_message(chat_id, reply)
+
+    return {"ok": True}
+
+
+@app.get("/team")
+async def show_team():
+    return {
+        "team": [
+            {"name": name, "emoji": info["emoji"]}
+            for name, info in AI_TEAM.items()
+        ]
+    }
+
+
+# ============== 启动 ==============
+if __name__ == "__main__":
+    import uvicorn
+    port = int(os.getenv("PORT", "8000"))
+    uvicorn.run(app, host="0.0.0.0", port=port)
