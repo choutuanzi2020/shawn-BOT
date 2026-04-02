@@ -168,12 +168,20 @@ async def call_qwen(messages: List[Dict], max_tokens: int = 800) -> str:
     try:
         async with httpx.AsyncClient(timeout=30.0) as client:
             response = await client.post(QWEN_API_URL, headers=headers, json=payload)
-            print("[Qwen]", response.status_code)
+            print(f"[Qwen] 状态: {response.status_code}")
+            
+            if response.status_code == 403:
+                print("[Qwen] API Key 无效或权限不足")
+                return "抱歉，AI 服务配置有问题，请联系管理员。"
+            
             response.raise_for_status()
             data = response.json()
             return data["choices"][0]["message"]["content"]
+    except httpx.HTTPStatusError as e:
+        print(f"[HTTP Error] {e.response.status_code}: {e.response.text[:200]}")
+        return "抱歉，AI 服务暂时不可用，请稍后重试。"
     except Exception as e:
-        print("[Error]", e)
+        print(f"[Error] {type(e).__name__}: {e}")
         return "抱歉，服务暂时不可用，请稍后重试。"
 
 
