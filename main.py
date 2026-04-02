@@ -265,7 +265,7 @@ async def call_llm(message: str, agent_name: str = "AI中枢") -> str:
 # ============== Telegram ==============
 async def send_telegram_message(chat_id: int, text: str):
     url = f"{TELEGRAM_API_URL}/sendMessage"
-    payload = {"chat_id": chat_id, "text": text, "parse_mode": "Markdown"}
+    payload = {"chat_id": chat_id, "text": text,}
     try:
         async with httpx.AsyncClient(timeout=10.0) as client:
             await client.post(url, json=payload)
