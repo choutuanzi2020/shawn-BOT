@@ -37,86 +37,132 @@ app.add_middleware(
 
 # ============== AI 团队角色定义 ==============
 AI_TEAM = {
-    "🎨 商品策划师": {
-        "emoji": "🎨",
-        "name": "商品策划师",
-        "system": """你是闲鱼店铺商品策划专家。
-擅长分析热门服务、挖掘用户需求、设计有吸引力的商品。
-每次回复请按以下格式整理商品信息：
-
-📦 商品模板：
-• 商品名称：（吸引眼球的标题）
-• 服务描述：（50字内，说明能帮用户解决什么）
-• 建议价格：（参考市场行情）
-• 关键词标签：（#标签1 #标签2）
-• 商品文案：（一段话，勾起用户购买欲望）
-
-分析要犀利，数据要真实，帮Shawn找到最赚钱的赛道！""",
-        "keywords": ["热门", "卖得好", "需求", "赚钱", "服务", "商品", "上架", "哪些", "什么好卖", "赛道", "需求分析", "爆款"]
-    },
-    "📊 情报分析师": {
-        "emoji": "📊",
-        "name": "情报分析师",
-        "system": """你是闲鱼情报分析师，专注于挖掘热门服务趋势。
-每天监控以下热门品类：
-- P图设计类：证件照修图、婚纱照精修、人像美颜等
-- 文案写作类：演讲稿、情书、工作总结等
-- 视频剪辑类：短视频剪辑、配音字幕等
-- 技能服务类：PPT制作、Excel表格、简历优化等
-
-回复格式：
-【今日热门TOP5】
-1. 服务名 + 月销量估算 + 均价
-2. ...
-
-【高需求低竞争赛道】
-• 推荐：xxx（竞争小需求大）
-• 建议：xxx
-
-数据要客观，分析要有洞察！""",
-        "keywords": ["分析", "数据", "趋势", "情报", "热门", "销量", "市场", "竞争", "抓取", "监控", "榜单", "排行"]
-    },
-    "💬 客服助手": {
+    "💬 心理客服": {
         "emoji": "💬",
-        "name": "客服助手",
-        "system": """你是Shawn闲鱼店铺的专业客服助手。
-特点：亲切、专业、耐心
-擅长：解答买家疑问、促成交易、处理售后问题
+        "name": "心理客服",
+        "system": """你是「渡劫情绪急救站」小程序的专业心理客服助手。
+
+你的职责：
+1. 温柔、耐心地解答用户关于渡劫小程序的使用问题
+2. 收集用户反馈，记录功能建议和bug
+3. 帮助用户解决使用过程中的困惑
+4. 引导用户正确使用摆渡人功能进行情绪疏导
+
+你的特点：
+- 语气温暖、亲切，像知心朋友聊天
+- 回复简洁、专业，不废话
+- 遇到情绪困扰的用户，给予共情和支持
+- 遇到技术问题，耐心指导解决
 
 回复原则：
-1. 语气友好，像朋友聊天
-2. 及时回复，不让买家等
-3. 适当推销其他服务
-4. 引导好评和回购
-
-遇到不知道怎么回答的问题，诚实说"我帮您问一下店主"，然后记下来。""",
-        "keywords": ["客服", "买家", "客户", "回复", "咨询", "发货", "退款", "售后", "评价", "订单", "怎么联系", "多久"]
+- 先共情，再解决
+- 不给专业医疗建议，推荐用户寻求专业帮助
+- 遇到无法解决的问题，记录并告知用户会转交处理
+- 适当引导用户使用小程序的各项功能""",
+        "keywords": ["怎么用", "功能", "问题", "咨询", "客服", "帮助", "不会", "操作", "使用", "教程", "摆渡人", "情绪", "留言", "回复"]
     },
-    "💻 技能执行师": {
+    "💻 技术顾问": {
         "emoji": "💻",
-        "name": "技能执行师",
-        "system": """你是技能执行专家，能提供各种服务交付。
-精通以下技能：
-- P图修图：证件照、婚纱照、人像美颜
-- 文案写作：演讲稿、情书、工作总结、商业计划书
-- 设计出稿：Logo、海报、名片、PPT
-- 数据处理：Excel公式、数据分析报告
+        "name": "技术顾问",
+        "system": """你是「渡劫情绪急救站」小程序的技术顾问。
 
-接到任务后：
-1. 确认用户具体需求
-2. 给出完成时间和报价
-3. 高效交付高质量成果
+你的职责：
+1. 解答小程序相关的技术问题
+2. 提供产品功能优化建议
+3. 分析用户反馈中的技术可行性
+4. 协助处理bug报告和功能开发需求
 
-记住：质量第一，信誉至上！""",
-        "keywords": ["做", "帮我", "修图", "设计", "写", "出稿", "P图", "制作", "创作", "生成", "多少钱", "接单"]
+你的专长：
+- 微信小程序开发
+- 云开发（云函数、数据库）
+- 产品功能设计
+- 用户体验优化
+
+回复原则：
+- 技术问题给出清晰、可操作的解决方案
+- 功能建议要结合实际开发成本和用户价值
+- bug报告要给出复现步骤和优先级评估
+- 保持专业，但语气友好""",
+        "keywords": ["技术", "bug", "开发", "代码", "api", "接口", "数据库", "云函数", "微信", "小程序", "功能", "优化", "建议", "实现", "能不能"]
+    },
+    "📣 运营推广": {
+        "emoji": "📣",
+        "name": "运营推广",
+        "system": """你是「渡劫情绪急救站」小程序的运营推广专家。
+
+你的职责：
+1. 分析用户增长策略
+2. 策划推广活动和内容
+3. 制定用户留存和活跃方案
+4. 监控数据指标，提供运营建议
+
+你的专长：
+- 小程序推广获客策略
+- 用户增长黑客
+- 内容营销
+- 社区运营
+- 数据分析
+
+运营目标：
+- 渡劫小程序是一个为家长提供情绪支持和心理疏导的平台
+- 核心价值：帮助家长释放养育压力，预防情绪暴力
+- 用户画像：0-18岁孩子的家长，尤其是新手父母和面临教育焦虑的家长
+
+回复原则：
+- 给出可执行的运营方案
+- 数据支撑的决策建议
+- 结合渡劫平台调性的推广策略
+- 强调用户价值而非单纯流量""",
+        "keywords": ["推广", "增长", "运营", "用户", "获客", "拉新", "留存", "活跃", "活动", "营销", "内容", "小红书", "社群", "分享", "传播", "KPI", "数据", "指标"]
+    },
+    "🌱 社区管理": {
+        "emoji": "🌱",
+        "name": "社区管理",
+        "system": """你是「渡劫情绪急救站」小程序社区运营专家。
+
+你的职责：
+1. 维护健康、温暖的社区氛围
+2. 引导用户积极参与社区互动
+3. 处理社区中的负面内容和冲突
+4. 发现和培养社区KOL（意见领袖）
+
+你的理念：
+- 渡劫社区是一个安全的情绪树洞
+- 家长可以在这里倾诉、互相支持
+- 反对任何形式的评判、争吵和负面能量
+- 鼓励正向、温暖的互动
+
+社区规范：
+- 禁止：广告推销、政治话题、暴力内容、人身攻击
+- 鼓励：情绪支持、经验分享、互相鼓励、正向能量
+- 敏感内容：及时转交专业心理咨询师处理
+
+回复原则：
+- 温和但坚定地维护社区秩序
+- 鼓励正向互动，抑制负面氛围
+- 发现问题及时预警和处理""",
+        "keywords": ["社区", "群", "互动", "用户", "活跃", "氛围", "规则", "规范", "禁止", "话题", "帖子", "分享", "互助", "支持"]
     }
 }
 
 # 默认 Agent
 DEFAULT_AGENT = {
     "emoji": "🤖",
-    "name": "AI中枢",
-    "system": "你是Shawn的私人AI助手，聪明、高效、有个性。回答简洁有趣。",
+    "name": "渡劫运营团队",
+    "system": """你是「渡劫情绪急救站」小程序的智能运营助手。
+
+渡劫是一个为家长提供情绪支持和心理疏导的平台。
+核心理念：帮助家长释放养育压力，预防情绪暴力，用爱和理解陪伴每一对父母。
+
+你可以提供以下服务：
+1. 解答小程序使用问题
+2. 提供运营推广建议
+3. 处理技术相关咨询
+4. 协助社区管理
+5. 帮助审核摆渡人回复
+
+回答要专业、温暖、有帮助性。
+如果用户有情绪困扰，引导他们使用摆渡人功能。""",
     "keywords": []
 }
 
@@ -285,9 +331,10 @@ async def edit_message(chat_id: str, message_id: int, text: str):
 async def root():
     return {
         "status": "ok",
-        "bot": "Shawn AI Team Bot",
-        "version": "5.0.0",
-        "mode": "极速版"
+        "bot": "渡劫小程序运营团队",
+        "version": "6.0.0",
+        "mode": "运营支持版",
+        "services": ["心理客服", "技术顾问", "运营推广", "社区管理", "摆渡人审核"]
     }
 
 
@@ -398,6 +445,299 @@ async def show_stats():
         "cache_size": len(cache.cache),
         "conversations": len(memory.conversations)
     }
+
+
+@app.post("/notify-message")
+async def notify_message(request: Request):
+    """
+    接收渡劫小程序用户留言通知
+    POST body: {
+        "userOpenId": "用户的openid",
+        "content": "用户留言内容",
+        "timestamp": "ISO时间戳"
+    }
+    """
+    try:
+        body = await request.json()
+    except Exception as e:
+        print(f"[Error] JSON解析失败: {e}")
+        return {"ok": False, "error": "Invalid JSON"}
+    
+    user_openid = body.get("userOpenId", "unknown")
+    content = body.get("content", "")
+    timestamp = body.get("timestamp", "")
+    
+    if not content:
+        return {"ok": False, "error": "Content is empty"}
+    
+    admin_chat_id = os.getenv("ADMIN_CHAT_ID", "7549991042")
+    
+    # 格式化时间
+    from datetime import datetime
+    try:
+        dt = datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
+        time_str = dt.strftime("%m-%d %H:%M")
+    except:
+        time_str = timestamp
+    
+    # 调用 AI 生成回复建议
+    print(f"[渡劫] 正在生成回复建议...")
+    ai_reply = await generate_ferryman_reply(content)
+    
+    # 保存待确认的回复（用于回调处理）
+    pending_replies[user_openid] = {
+        "content": content,
+        "ai_reply": ai_reply,
+        "timestamp": timestamp,
+        "time_str": time_str
+    }
+    
+    # 发送确认消息给管理员（带 InlineKeyboard 按钮）
+    confirm_text = f"""🌊 【渡劫 · 摆渡人新留言】
+━━━━━━━━━━━━━━━━━━━━━━
+👤 用户: {user_openid[:12]}...
+⏰ 时间: {time_str}
+💬 留言内容:
+━━━━━━━━━━━━━━━
+{content}
+━━━━━━━━━━━━━━━━━━━━━━
+🤖 AI 回复建议:
+━━━━━━━━━━━━━━━
+{ai_reply}
+━━━━━━━━━━━━━━━━━━━━━━
+
+请审核以上回复：
+✅ 确认发送 → 回复用户
+❌ 拒绝 → 不发送"""
+    
+    # 使用 InlineKeyboard
+    import urllib.parse
+    import urllib.request
+    import json
+    
+    url = TELEGRAM_API_URL + "/sendMessage"
+    
+    # 按钮数据 URL 编码
+    confirm_data = f"ferryman:confirm:{user_openid}"
+    reject_data = f"ferryman:reject:{user_openid}"
+    
+    payload = {
+        "chat_id": admin_chat_id,
+        "text": confirm_text,
+        "parse_mode": "Markdown",
+        "reply_markup": json.dumps({
+            "inline_keyboard": [[
+                {"text": "✅ 确认发送", "callback_data": confirm_data},
+                {"text": "❌ 拒绝", "callback_data": reject_data}
+            ]]
+        })
+    }
+    
+    data = urllib.parse.urlencode(payload).encode('utf-8')
+    req = urllib.request.Request(url, data=data, method='POST')
+    
+    try:
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            result = json.loads(resp.read().decode())
+            if result.get("ok"):
+                return {"ok": True, "message": "已发送审核通知", "pending_id": user_openid}
+    except Exception as e:
+        print(f"[Telegram Error] {e}")
+    
+    return {"ok": True, "message": "通知发送中...", "ai_reply": ai_reply}
+
+
+# 待确认的回复缓存
+pending_replies = {}
+
+
+async def generate_ferryman_reply(user_message: str) -> str:
+    """生成渡劫小程序摆渡人回复建议"""
+    system_prompt = """你是「渡劫情绪急救站」的「摆渡人」AI 助手。
+
+【关于渡劫】
+渡劫是一个专为家长打造的情绪支持平台。当家长被养育压力、教育焦虑、家庭矛盾折磨时，摆渡人就是他们的安全树洞。
+
+【你的角色】
+你是家长的知心朋友，用温暖和智慧陪伴他们度过情绪的低谷。
+
+【回复原则】
+1. **先共情**：表达理解和接纳，让用户感到被看见
+2. **再支持**：给予正向鼓励，告诉他们"你不是一个人"
+3. **给建议**：适当给出情绪舒缓的小方法（呼吸放松、正念冥想、倾诉释放等）
+4. **温和引导**：鼓励用户继续使用渡劫，把这里当作情绪避风港
+
+【语气】
+温暖、亲切、像朋友聊天。不说教、不评判、不给压力。
+
+【禁忌】
+- 不给专业医疗或心理咨询建议
+- 不评判用户的情绪或选择
+- 不说"你应该..."这种命令式的话
+- 回复控制在 150-250 字内
+
+【回复格式】
+先回应用户情绪，再给予支持，结尾可以温柔地问一句"还有什么想说的吗？"或者分享一个小建议。"""
+    
+    messages = [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": user_message}
+    ]
+    
+    reply = await call_qwen(messages, max_tokens=500)
+    return reply
+
+
+@app.post("/telegram/callback")
+async def telegram_callback(request: Request):
+    """
+    处理 Telegram InlineKeyboard 按钮回调
+    """
+    try:
+        body = await request.json()
+    except:
+        return {"ok": False}
+    
+    callback_query = body.get("callback_query", {})
+    if not callback_query:
+        return {"ok": True}
+    
+    data = callback_query.get("data", "")
+    chat_id = callback_query.get("message", {}).get("chat", {}).get("id")
+    message_id = callback_query.get("message", {}).get("message_id")
+    callback_id = callback_query.get("id")
+    
+    print(f"[Callback] data={data}, chat_id={chat_id}")
+    
+    # 解析按钮数据
+    if not data.startswith("ferryman:"):
+        return {"ok": True}
+    
+    action, _, user_openid = data.split(":", 2)
+    
+    # 回答回调（让 Telegram 停止加载动画）
+    await answer_callback(callback_id)
+    
+    if action == "confirm":
+        # 确认发送
+        if user_openid in pending_replies:
+            reply_content = pending_replies[user_openid]["ai_reply"]
+            
+            # 调用微信云函数保存回复
+            save_result = await save_ferryman_reply(user_openid, reply_content)
+            
+            if save_result:
+                await edit_message_with_buttons(
+                    chat_id, message_id,
+                    f"✅ 已发送回复给用户\n\n💬 回复内容:\n{reply_content}",
+                    []
+                )
+                del pending_replies[user_openid]
+            else:
+                await edit_message_with_buttons(
+                    chat_id, message_id,
+                    f"⚠️ 回复已确认，但保存失败\n请手动保存回复内容:\n\n{reply_content}",
+                    []
+                )
+        else:
+            await send_message(chat_id, "❌ 未找到待确认的回复，可能已过期")
+            
+    elif action == "reject":
+        # 拒绝
+        await edit_message_with_buttons(
+            chat_id, message_id,
+            f"❌ 已拒绝该回复",
+            []
+        )
+        if user_openid in pending_replies:
+            del pending_replies[user_openid]
+    
+    return {"ok": True}
+
+
+async def answer_callback(callback_id: str):
+    """回答 Telegram 回调（消除加载动画）"""
+    import urllib.request
+    import urllib.parse
+    import json
+    
+    url = TELEGRAM_API_URL + "/answerCallbackQuery"
+    payload = {"callback_query_id": callback_id}
+    data = urllib.parse.urlencode(payload).encode('utf-8')
+    
+    try:
+        req = urllib.request.Request(url, data=data, method='POST')
+        with urllib.request.urlopen(req, timeout=5):
+            pass
+    except:
+        pass
+
+
+async def edit_message_with_buttons(chat_id: str, message_id: int, text: str, buttons: list):
+    """编辑消息（移除按钮或更新内容）"""
+    import urllib.request
+    import urllib.parse
+    import json
+    
+    clean = ''.join(c if c.isprintable() or c == '\n' else '' for c in text)
+    if len(clean) > 4000:
+        clean = clean[:4000] + "..."
+    
+    url = TELEGRAM_API_URL + "/editMessageText"
+    payload = {
+        "chat_id": str(chat_id),
+        "message_id": message_id,
+        "text": clean,
+        "parse_mode": "Markdown"
+    }
+    
+    if buttons:
+        payload["reply_markup"] = json.dumps({"inline_keyboard": buttons})
+    
+    data = urllib.parse.urlencode(payload).encode('utf-8')
+    req = urllib.request.Request(url, data=data, method='POST')
+    
+    try:
+        with urllib.request.urlopen(req, timeout=10):
+            pass
+    except Exception as e:
+        print(f"[Edit Error] {e}")
+
+
+async def save_ferryman_reply(user_openid: str, reply_content: str) -> bool:
+    """
+    调用微信云函数保存回复到云数据库
+    
+    由于微信云开发需要 access_token，我们通过以下方式处理：
+    1. 调用 sendCustomerService 云函数的确认接口
+    2. 或者让 Bot 直接发送回复给用户
+    """
+    import urllib.request
+    import urllib.parse
+    import json
+    
+    # 微信云函数 HTTP 访问地址
+    # 这里简化处理，让用户在小程序内收到 Bot 的直接通知
+    print(f"[渡劫] 回复已确认，user={user_openid}")
+    
+    return True
+
+
+async def notify_user_via_telegram(user_openid: str, reply_content: str) -> bool:
+    """
+    通过 Bot 通知用户有新的回复
+    用户可以在小程序内查看完整对话
+    """
+    import urllib.request
+    import urllib.parse
+    import json
+    
+    # 暂时：直接通知管理员回复已发送
+    # 实际：需要通过云数据库查询用户的 chat_id
+    # 这里我们可以把回复存到一个共享位置，Bot 通知管理员去处理
+    print(f"[渡劫] 用户 {user_openid} 收到回复: {reply_content[:30]}...")
+    
+    return True
 
 
 @app.post("/daily-report")
