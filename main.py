@@ -427,8 +427,9 @@ async def handle_callback(callback_query: Dict) -> Dict:
     
     if action == "confirm":
         # 确认发送
-        if user_openid in pending_replies:
-            reply_content = pending_replies[user_openid]["ai_reply"]
+        pending_data = load_pending_reply(user_openid)
+        if pending_data:
+            reply_content = pending_data["ai_reply"]
             
             # 调用微信云函数保存回复
             save_result = await save_ferryman_reply(user_openid, reply_content)
@@ -439,13 +440,13 @@ async def handle_callback(callback_query: Dict) -> Dict:
                     f"✅ 已发送回复给用户\n\n💬 回复内容:\n{reply_content}",
                     []
                 )
-                del pending_replies[user_openid]
             else:
                 await edit_message_with_buttons(
                     chat_id, message_id,
                     f"⚠️ 回复已确认，但保存失败\n请手动保存回复内容:\n\n{reply_content}",
                     []
                 )
+            delete_pending_reply(user_openid)
         else:
             await send_message(chat_id, "❌ 未找到待确认的回复，可能已过期")
             
@@ -456,8 +457,7 @@ async def handle_callback(callback_query: Dict) -> Dict:
             f"❌ 已拒绝该回复",
             []
         )
-        if user_openid in pending_replies:
-            del pending_replies[user_openid]
+        delete_pending_reply(user_openid)
     
     return {"ok": True}
 
@@ -516,13 +516,13 @@ async def notify_message(request: Request):
     print(f"[渡劫] 正在生成回复建议...")
     ai_reply = await generate_ferryman_reply(content)
     
-    # 保存待确认的回复（用于回调处理）
-    pending_replies[user_openid] = {
+    # 保存待确认的回复（用于回调处理）- 使用文件存储
+    save_pending_reply(user_openid, {
         "content": content,
         "ai_reply": ai_reply,
         "timestamp": timestamp,
         "time_str": time_str
-    }
+    })
     
     # 发送确认消息给管理员（带 InlineKeyboard 按钮）
     confirm_text = f"""🔔 【渡劫小程序新留言】
@@ -575,8 +575,48 @@ async def notify_message(request: Request):
     return {"ok": True, "message": "通知发送中...", "ai_reply": ai_reply}
 
 
-# 待确认的回复缓存
-pending_replies = {}
+# ============== 文件存储的待确认回复 ==============
+import json
+import uuid
+import os
+
+PENDING_FILE = "/tmp/ferryman_pending_replies.json"
+
+def save_pending_reply(user_openid: str, data: dict):
+    """保存待确认的回复到文件"""
+    all_pending = load_all_pending()
+    all_pending[user_openid] = data
+    try:
+        with open(PENDING_FILE, 'w', encoding='utf-8') as f:
+            json.dump(all_pending, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        print(f"[保存失败] {e}")
+
+def load_pending_reply(user_openid: str) -> Optional[dict]:
+    """读取待确认的回复"""
+    all_pending = load_all_pending()
+    return all_pending.get(user_openid)
+
+def delete_pending_reply(user_openid: str):
+    """删除待确认的回复"""
+    all_pending = load_all_pending()
+    if user_openid in all_pending:
+        del all_pending[user_openid]
+        try:
+            with open(PENDING_FILE, 'w', encoding='utf-8') as f:
+                json.dump(all_pending, f, ensure_ascii=False, indent=2)
+        except Exception as e:
+            print(f"[删除失败] {e}")
+
+def load_all_pending() -> dict:
+    """加载所有待确认回复"""
+    if os.path.exists(PENDING_FILE):
+        try:
+            with open(PENDING_FILE, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except:
+            pass
+    return {}
 
 
 async def generate_ferryman_reply(user_message: str) -> str:
