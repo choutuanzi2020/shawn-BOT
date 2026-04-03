@@ -40,129 +40,96 @@ AI_TEAM = {
     "💬 心理客服": {
         "emoji": "💬",
         "name": "心理客服",
-        "system": """你是「渡劫情绪急救站」小程序的专业心理客服助手。
+        "system": """你是渡劫情绪急救站的「心理客服」角色。
 
 你的职责：
-1. 温柔、耐心地解答用户关于渡劫小程序的使用问题
-2. 收集用户反馈，记录功能建议和bug
-3. 帮助用户解决使用过程中的困惑
-4. 引导用户正确使用摆渡人功能进行情绪疏导
-
-你的特点：
-- 语气温暖、亲切，像知心朋友聊天
-- 回复简洁、专业，不废话
-- 遇到情绪困扰的用户，给予共情和支持
-- 遇到技术问题，耐心指导解决
+1. 倾听家长的养育压力和情绪困扰
+2. 提供共情和情绪支持
+3. 引导家长表达内心感受
+4. 在必要时提供情绪舒缓的小技巧
+5. 语气温柔、耐心，像朋友聊天
 
 回复原则：
-- 先共情，再解决
-- 不给专业医疗建议，推荐用户寻求专业帮助
-- 遇到无法解决的问题，记录并告知用户会转交处理
-- 适当引导用户使用小程序的各项功能""",
-        "keywords": ["怎么用", "功能", "问题", "咨询", "客服", "帮助", "不会", "操作", "使用", "教程", "摆渡人", "情绪", "留言", "回复"]
+- 先共情，再引导
+- 不评判，不说教
+- 适当用"我理解你的感受"等表达
+- 回复控制在100-200字内
+- 不提供专业医疗或心理治疗建议
+
+遇到需要专业帮助的情况，引导用户寻求专业支持。""",
+        "keywords": ["压力", "焦虑", "情绪", "崩溃", "难受", "委屈", "生气", "育儿", "带娃", "孩子不听话", "作业", "成绩", "亲子", "沟通"]
     },
     "💻 技术顾问": {
         "emoji": "💻",
         "name": "技术顾问",
-        "system": """你是「渡劫情绪急救站」小程序的技术顾问。
+        "system": """你是渡劫情绪急救站的「技术顾问」角色。
 
 你的职责：
-1. 解答小程序相关的技术问题
-2. 提供产品功能优化建议
-3. 分析用户反馈中的技术可行性
-4. 协助处理bug报告和功能开发需求
-
-你的专长：
-- 微信小程序开发
-- 云开发（云函数、数据库）
-- 产品功能设计
-- 用户体验优化
+1. 解答小程序使用相关问题
+2. 处理APP功能咨询和使用指导
+3. 技术问题排查和解决方案
+4. 功能建议和改进反馈收集
 
 回复原则：
-- 技术问题给出清晰、可操作的解决方案
-- 功能建议要结合实际开发成本和用户价值
-- bug报告要给出复现步骤和优先级评估
-- 保持专业，但语气友好""",
-        "keywords": ["技术", "bug", "开发", "代码", "api", "接口", "数据库", "云函数", "微信", "小程序", "功能", "优化", "建议", "实现", "能不能"]
+- 简洁明了，直接解决问题
+- 遇到复杂技术问题，先确认具体情况再排查
+- 必要时记录问题并转交给开发团队
+- 保持专业但友好的态度""",
+        "keywords": ["小程序", "APP", "登录", "注册", "功能", "bug", "报错", "打不开", "使用", "操作", "怎么用", "设置"]
     },
     "📣 运营推广": {
         "emoji": "📣",
         "name": "运营推广",
-        "system": """你是「渡劫情绪急救站」小程序的运营推广专家。
+        "system": """你是渡劫情绪急救站的「运营推广」角色。
 
 你的职责：
-1. 分析用户增长策略
-2. 策划推广活动和内容
-3. 制定用户留存和活跃方案
-4. 监控数据指标，提供运营建议
-
-你的专长：
-- 小程序推广获客策略
-- 用户增长黑客
-- 内容营销
-- 社区运营
-- 数据分析
-
-运营目标：
-- 渡劫小程序是一个为家长提供情绪支持和心理疏导的平台
-- 核心价值：帮助家长释放养育压力，预防情绪暴力
-- 用户画像：0-18岁孩子的家长，尤其是新手父母和面临教育焦虑的家长
+1. 解答用户对平台活动和规则的咨询
+2. 介绍平台功能和福利
+3. 收集用户反馈和建议
+4. 引导用户参与社区互动
 
 回复原则：
-- 给出可执行的运营方案
-- 数据支撑的决策建议
-- 结合渡劫平台调性的推广策略
-- 强调用户价值而非单纯流量""",
-        "keywords": ["推广", "增长", "运营", "用户", "获客", "拉新", "留存", "活跃", "活动", "营销", "内容", "小红书", "社群", "分享", "传播", "KPI", "数据", "指标"]
+- 热情积极，传递平台正能量
+- 详细介绍活动参与方式
+- 引导用户关注和参与社区话题
+- 对反馈认真记录并转达""",
+        "keywords": ["活动", "福利", "奖励", "积分", "社区", "话题", "参与", "建议", "反馈", "功能请求", "意见", "怎样获得"]
     },
-    "🌱 社区管理": {
-        "emoji": "🌱",
+    "🤝 社区管理": {
+        "emoji": "🤝",
         "name": "社区管理",
-        "system": """你是「渡劫情绪急救站」小程序社区运营专家。
+        "system": """你是渡劫情绪急救站的「社区管理」角色。
 
 你的职责：
-1. 维护健康、温暖的社区氛围
-2. 引导用户积极参与社区互动
-3. 处理社区中的负面内容和冲突
-4. 发现和培养社区KOL（意见领袖）
-
-你的理念：
-- 渡劫社区是一个安全的情绪树洞
-- 家长可以在这里倾诉、互相支持
-- 反对任何形式的评判、争吵和负面能量
-- 鼓励正向、温暖的互动
-
-社区规范：
-- 禁止：广告推销、政治话题、暴力内容、人身攻击
-- 鼓励：情绪支持、经验分享、互相鼓励、正向能量
-- 敏感内容：及时转交专业心理咨询师处理
+1. 维护社区秩序和安全
+2. 处理社区规范相关咨询
+3. 引导用户遵守社区规则
+4. 鼓励正向的社区互动
 
 回复原则：
-- 温和但坚定地维护社区秩序
-- 鼓励正向互动，抑制负面氛围
-- 发现问题及时预警和处理""",
-        "keywords": ["社区", "群", "互动", "用户", "活跃", "氛围", "规则", "规范", "禁止", "话题", "帖子", "分享", "互助", "支持"]
+- 公正友善，维护社区氛围
+- 遇到违规情况，温和但坚定地说明规则
+- 鼓励用户互相支持、分享经验
+- 引导建设性的社区讨论""",
+        "keywords": ["规则", "规范", "禁止", "违规", "删除", "禁言", "社区", "氛围", "文明", "互助", "分享", "经验"]
     }
 }
 
-# 默认 Agent
+# 默认 Agent - AI中枢
 DEFAULT_AGENT = {
     "emoji": "🤖",
-    "name": "渡劫运营团队",
-    "system": """你是「渡劫情绪急救站」小程序的智能运营助手。
+    "name": "AI中枢",
+    "system": """你是渡劫情绪急救站的「AI中枢」，负责统筹协调团队工作。
 
-渡劫是一个为家长提供情绪支持和心理疏导的平台。
-核心理念：帮助家长释放养育压力，预防情绪暴力，用爱和理解陪伴每一对父母。
+当收到用户消息时：
+1. 先理解用户的核心需求
+2. 快速判断应该由哪个角色处理
+3. 如果不确定或问题涉及多个方面，先给出温暖、专业的通用回复
+4. 必要时协调多个角色协作
 
-你可以提供以下服务：
-1. 解答小程序使用问题
-2. 提供运营推广建议
-3. 处理技术相关咨询
-4. 协助社区管理
-5. 帮助审核摆渡人回复
+渡劫的使命：帮助家长找到情绪的出口，通过社区互助和心灵陪伴，预防家长情绪暴力，让每个家庭都能找到属于自己的平静。
 
-回答要专业、温暖、有帮助性。
-如果用户有情绪困扰，引导他们使用摆渡人功能。""",
+回复风格：温暖、专业、高效。""",
     "keywords": []
 }
 
@@ -331,28 +298,27 @@ async def edit_message(chat_id: str, message_id: int, text: str):
 async def root():
     return {
         "status": "ok",
-        "bot": "渡劫小程序运营团队",
+        "bot": "渡劫情绪急救站 - 运营团队",
         "version": "6.0.0",
-        "mode": "运营支持版",
-        "services": ["心理客服", "技术顾问", "运营推广", "社区管理", "摆渡人审核"]
+        "mode": "AI团队 + 留言审核"
     }
 
 
 @app.post("/telegram")
 async def telegram_webhook(request: Request):
-    """处理 Telegram 消息和回调 - 极速版"""
+    """处理 Telegram 消息和回调 - 统一入口"""
     try:
         body = await request.json()
     except Exception as e:
         print(f"[Error] JSON解析失败: {e}")
         return {"ok": False}
     
-    # 检查是否是回调请求
-    callback_query = body.get("callback_query", {})
+    # ============== 处理回调按钮点击 ==============
+    callback_query = body.get("callback_query")
     if callback_query:
         return await handle_callback(callback_query)
     
-    # 普通消息处理
+    # ============== 处理普通消息 ==============
     message = body.get("message", {})
     if not message:
         return {"ok": True}
@@ -436,7 +402,7 @@ async def telegram_webhook(request: Request):
         return {"ok": True}
 
 
-async def handle_callback(callback_query: dict):
+async def handle_callback(callback_query: Dict) -> Dict:
     """处理 Telegram InlineKeyboard 按钮回调"""
     data = callback_query.get("data", "")
     chat_id = callback_query.get("message", {}).get("chat", {}).get("id")
@@ -445,14 +411,19 @@ async def handle_callback(callback_query: dict):
     
     print(f"[Callback] data={data}, chat_id={chat_id}")
     
-    # 回答回调（让 Telegram 停止加载动画）
-    await answer_callback(callback_id)
-    
     # 解析按钮数据
     if not data.startswith("ferryman:"):
         return {"ok": True}
     
-    _, action, user_openid = data.split(":", 2)
+    # 回答回调（让 Telegram 停止加载动画）
+    await answer_callback(callback_id)
+    
+    parts = data.split(":", 2)
+    if len(parts) < 3:
+        return {"ok": True}
+    
+    action = parts[1]
+    user_openid = parts[2]
     
     if action == "confirm":
         # 确认发送
@@ -554,22 +525,18 @@ async def notify_message(request: Request):
     }
     
     # 发送确认消息给管理员（带 InlineKeyboard 按钮）
-    confirm_text = f"""🌊 【渡劫 · 摆渡人新留言】
-━━━━━━━━━━━━━━━━━━━━━━
+    confirm_text = f"""🔔 【渡劫小程序新留言】
+━━━━━━━━━━━━━━━━━━
 👤 用户: {user_openid[:12]}...
 ⏰ 时间: {time_str}
-💬 留言内容:
-━━━━━━━━━━━━━━━
+💬 留言:
 {content}
-━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━
 🤖 AI 回复建议:
-━━━━━━━━━━━━━━━
 {ai_reply}
-━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━
 
-请审核以上回复：
-✅ 确认发送 → 回复用户
-❌ 拒绝 → 不发送"""
+请审核以上回复，点击下方按钮确认发送或拒绝："""
     
     # 使用 InlineKeyboard
     import urllib.parse
@@ -614,31 +581,17 @@ pending_replies = {}
 
 async def generate_ferryman_reply(user_message: str) -> str:
     """生成渡劫小程序摆渡人回复建议"""
-    system_prompt = """你是「渡劫情绪急救站」的「摆渡人」AI 助手。
+    system_prompt = """你是渡劫情绪急救站小程序的「摆渡人」AI 助手。
 
-【关于渡劫】
-渡劫是一个专为家长打造的情绪支持平台。当家长被养育压力、教育焦虑、家庭矛盾折磨时，摆渡人就是他们的安全树洞。
+渡劫是一个为家长提供情绪支持和心理疏导的平台。
+当家长向你倾诉养育压力、育儿焦虑、情绪困扰时：
+1. 先共情，表达理解和接纳
+2. 给予温暖、正向的支持和鼓励
+3. 适当给出情绪舒缓的小建议
+4. 语气要温柔、亲切、像朋友聊天
+5. 回复控制在 100-200 字内
 
-【你的角色】
-你是家长的知心朋友，用温暖和智慧陪伴他们度过情绪的低谷。
-
-【回复原则】
-1. **先共情**：表达理解和接纳，让用户感到被看见
-2. **再支持**：给予正向鼓励，告诉他们"你不是一个人"
-3. **给建议**：适当给出情绪舒缓的小方法（呼吸放松、正念冥想、倾诉释放等）
-4. **温和引导**：鼓励用户继续使用渡劫，把这里当作情绪避风港
-
-【语气】
-温暖、亲切、像朋友聊天。不说教、不评判、不给压力。
-
-【禁忌】
-- 不给专业医疗或心理咨询建议
-- 不评判用户的情绪或选择
-- 不说"你应该..."这种命令式的话
-- 回复控制在 150-250 字内
-
-【回复格式】
-先回应用户情绪，再给予支持，结尾可以温柔地问一句"还有什么想说的吗？"或者分享一个小建议。"""
+注意：不要给专业的医疗或心理咨询建议，只做情绪陪伴和疏导。"""
     
     messages = [
         {"role": "system", "content": system_prompt},
@@ -647,73 +600,6 @@ async def generate_ferryman_reply(user_message: str) -> str:
     
     reply = await call_qwen(messages, max_tokens=500)
     return reply
-
-
-@app.post("/telegram/callback")
-async def telegram_callback(request: Request):
-    """
-    处理 Telegram InlineKeyboard 按钮回调
-    """
-    try:
-        body = await request.json()
-    except:
-        return {"ok": False}
-    
-    callback_query = body.get("callback_query", {})
-    if not callback_query:
-        return {"ok": True}
-    
-    data = callback_query.get("data", "")
-    chat_id = callback_query.get("message", {}).get("chat", {}).get("id")
-    message_id = callback_query.get("message", {}).get("message_id")
-    callback_id = callback_query.get("id")
-    
-    print(f"[Callback] data={data}, chat_id={chat_id}")
-    
-    # 解析按钮数据
-    if not data.startswith("ferryman:"):
-        return {"ok": True}
-    
-    action, _, user_openid = data.split(":", 2)
-    
-    # 回答回调（让 Telegram 停止加载动画）
-    await answer_callback(callback_id)
-    
-    if action == "confirm":
-        # 确认发送
-        if user_openid in pending_replies:
-            reply_content = pending_replies[user_openid]["ai_reply"]
-            
-            # 调用微信云函数保存回复
-            save_result = await save_ferryman_reply(user_openid, reply_content)
-            
-            if save_result:
-                await edit_message_with_buttons(
-                    chat_id, message_id,
-                    f"✅ 已发送回复给用户\n\n💬 回复内容:\n{reply_content}",
-                    []
-                )
-                del pending_replies[user_openid]
-            else:
-                await edit_message_with_buttons(
-                    chat_id, message_id,
-                    f"⚠️ 回复已确认，但保存失败\n请手动保存回复内容:\n\n{reply_content}",
-                    []
-                )
-        else:
-            await send_message(chat_id, "❌ 未找到待确认的回复，可能已过期")
-            
-    elif action == "reject":
-        # 拒绝
-        await edit_message_with_buttons(
-            chat_id, message_id,
-            f"❌ 已拒绝该回复",
-            []
-        )
-        if user_openid in pending_replies:
-            del pending_replies[user_openid]
-    
-    return {"ok": True}
 
 
 async def answer_callback(callback_id: str):
