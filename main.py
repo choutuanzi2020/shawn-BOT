@@ -479,6 +479,30 @@ async def show_stats():
     }
 
 
+@app.get("/messages")
+async def show_messages(limit: int = 10):
+    """查看最近的留言和回复记录"""
+    import os
+    local_file = "/tmp/ferryman_messages.json"
+    
+    if not os.path.exists(local_file):
+        return {"messages": [], "total": 0}
+    
+    try:
+        with open(local_file, 'r', encoding='utf-8') as f:
+            messages = json.load(f)
+        
+        # 返回最新的 N 条
+        recent = messages[-limit:] if len(messages) > limit else messages
+        
+        return {
+            "messages": recent,
+            "total": len(messages)
+        }
+    except Exception as e:
+        return {"error": str(e)}
+
+
 @app.post("/notify-message")
 async def notify_message(request: Request):
     """
@@ -693,21 +717,125 @@ async def edit_message_with_buttons(chat_id: str, message_id: int, text: str, bu
 
 async def save_ferryman_reply(user_openid: str, reply_content: str) -> bool:
     """
-    调用微信云函数保存回复到云数据库
-    
-    由于微信云开发需要 access_token，我们通过以下方式处理：
-    1. 调用 sendCustomerService 云函数的确认接口
-    2. 或者让 Bot 直接发送回复给用户
+    保存已确认的回复到本地文件和微信云数据库
     """
-    import urllib.request
-    import urllib.parse
     import json
+    from datetime import datetime
     
-    # 微信云函数 HTTP 访问地址
-    # 这里简化处理，让用户在小程序内收到 Bot 的直接通知
-    print(f"[渡劫] 回复已确认，user={user_openid}")
+    # 获取待确认的原始数据
+    pending = load_pending_reply(user_openid)
+    user_message = pending.get("content", "") if pending else ""
+    timestamp = pending.get("timestamp", "") if pending else ""
     
+    # 记录数据
+    record = {
+        "user_openid": user_openid,
+        "user_message": user_message,
+        "reply_content": reply_content,
+        "created_at": datetime.now().isoformat(),
+        "original_timestamp": timestamp
+    }
+    
+    # 1. 保存到本地文件
+    save_to_local_file(record)
+    
+    # 2. 保存到微信云数据库（如果配置了）
+    cloud_result = await save_to_wechat_cloud(record)
+    
+    print(f"[渡劫] 回复已保存 - user={user_openid}, local=✓, cloud={'✓' if cloud_result else '✗'}")
     return True
+
+
+def save_to_local_file(record: dict):
+    """保存记录到本地 JSON 文件"""
+    import os
+    local_file = "/tmp/ferryman_messages.json"
+    
+    messages = []
+    if os.path.exists(local_file):
+        try:
+            with open(local_file, 'r', encoding='utf-8') as f:
+                messages = json.load(f)
+        except:
+            messages = []
+    
+    messages.append(record)
+    
+    # 只保留最近 1000 条
+    if len(messages) > 1000:
+        messages = messages[-1000:]
+    
+    try:
+        with open(local_file, 'w', encoding='utf-8') as f:
+            json.dump(messages, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        print(f"[本地存储失败] {e}")
+
+
+async def save_to_wechat_cloud(record: dict) -> bool:
+    """
+    保存到微信云数据库
+    """
+    WECHAT_APP_ID = "wx431ef83ab7fbe533"
+    WECHAT_APP_SECRET = "23dec4694b4e2454fb8baff7a47befc5"
+    env_id = "cloud1-7gs23ruwa46856c7"
+    
+    try:
+        import urllib.request
+        import urllib.parse
+        import time
+        
+        # 1. 获取 access_token
+        token_url = f"https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid={WECHAT_APP_ID}&secret={WECHAT_APP_SECRET}"
+        
+        with urllib.request.urlopen(token_url, timeout=10) as resp:
+            token_result = json.loads(resp.read().decode())
+        
+        if "access_token" not in token_result:
+            print(f"[微信云] 获取token失败: {token_result}")
+            return False
+        
+        access_token = token_result["access_token"]
+        
+        # 2. 保存到云数据库
+        db_url = f"https://api.weixin.qq.com/tcb/databaseadd?access_token={access_token}"
+        
+        # 转义字符串中的单引号
+        user_openid = record['user_openid'].replace("'", "\\'")
+        user_message = record['user_message'].replace("'", "\\'")
+        reply_content = record['reply_content'].replace("'", "\\'")
+        created_at = record['created_at'].replace("'", "\\'")
+        
+        payload = {
+            "env": env_id,
+            "query": f"""
+                db.collection('ferryman_messages').add({{
+                    data: {{
+                        user_openid: '{user_openid}',
+                        user_message: '{user_message}',
+                        reply_content: '{reply_content}',
+                        created_at: '{created_at}',
+                        status: 'replied'
+                    }}
+                }})
+            """
+        }
+        
+        data = json.dumps(payload, ensure_ascii=False).encode('utf-8')
+        req = urllib.request.Request(db_url, data=data, method='POST')
+        req.add_header("Content-Type", "application/json")
+        
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            result = json.loads(resp.read().decode())
+            if result.get("errcode") == 0:
+                print(f"[微信云] 保存成功，ID: {result.get('id_list')}")
+                return True
+            else:
+                print(f"[微信云] 保存失败: {result}")
+                return False
+    except Exception as e:
+        print(f"[微信云] 保存异常: {e}")
+        return False
 
 
 async def notify_user_via_telegram(user_openid: str, reply_content: str) -> bool:
