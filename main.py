@@ -840,7 +840,7 @@ def save_to_local_file(record: dict):
 
 async def save_to_wechat_cloud(record: dict) -> bool:
     """
-    保存到微信云数据库 - 修复版
+    保存到微信云数据库
     """
     WECHAT_APP_ID = "wx431ef83ab7fbe533"
     WECHAT_APP_SECRET = "23dec4694b4e2454fb8baff7a47befc5"
@@ -849,6 +849,7 @@ async def save_to_wechat_cloud(record: dict) -> bool:
     try:
         import urllib.request
         import urllib.parse
+        import time
         
         # 1. 获取 access_token
         token_url = f"https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid={WECHAT_APP_ID}&secret={WECHAT_APP_SECRET}"
@@ -862,10 +863,10 @@ async def save_to_wechat_cloud(record: dict) -> bool:
         
         access_token = token_result["access_token"]
         
-        # 2. 保存到云数据库 - 使用微信云数据库 API
+        # 2. 保存到云数据库
         db_url = f"https://api.weixin.qq.com/tcb/databaseadd?access_token={access_token}"
         
-        # 构建数据对象
+        # 先构建内部 data 对象，然后对整个 query 字符串进行 json.dumps
         data_obj = {
             "user_openid": record['user_openid'],
             "user_message": record['user_message'],
@@ -874,9 +875,10 @@ async def save_to_wechat_cloud(record: dict) -> bool:
             "status": "replied"
         }
         
-        # 使用微信云支持的 query 格式
-        query_str = f"db.collection('ferryman_messages').add({{data: {json.dumps(data_obj, ensure_ascii=False)}}})"
+        # 构建 query 字符串（云数据库的查询语句）
+        query_str = "db.collection('ferryman_messages').add({data: " + json.dumps(data_obj, ensure_ascii=False) + "})"
         
+        # 整个 payload 再用 json.dumps 编码，确保特殊字符正确转义
         payload = {
             "env": env_id,
             "query": query_str
