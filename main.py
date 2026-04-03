@@ -340,13 +340,19 @@ async def root():
 
 @app.post("/telegram")
 async def telegram_webhook(request: Request):
-    """处理 Telegram 消息 - 极速版"""
+    """处理 Telegram 消息和回调 - 极速版"""
     try:
         body = await request.json()
     except Exception as e:
         print(f"[Error] JSON解析失败: {e}")
         return {"ok": False}
     
+    # 检查是否是回调请求
+    callback_query = body.get("callback_query", {})
+    if callback_query:
+        return await handle_callback(callback_query)
+    
+    # 普通消息处理
     message = body.get("message", {})
     if not message:
         return {"ok": True}
@@ -428,6 +434,61 @@ async def telegram_webhook(request: Request):
         traceback.print_exc()
         await send_message(chat_id, f"❌ 处理出错: {type(e).__name__}")
         return {"ok": True}
+
+
+async def handle_callback(callback_query: dict):
+    """处理 Telegram InlineKeyboard 按钮回调"""
+    data = callback_query.get("data", "")
+    chat_id = callback_query.get("message", {}).get("chat", {}).get("id")
+    message_id = callback_query.get("message", {}).get("message_id")
+    callback_id = callback_query.get("id")
+    
+    print(f"[Callback] data={data}, chat_id={chat_id}")
+    
+    # 回答回调（让 Telegram 停止加载动画）
+    await answer_callback(callback_id)
+    
+    # 解析按钮数据
+    if not data.startswith("ferryman:"):
+        return {"ok": True}
+    
+    _, action, user_openid = data.split(":", 2)
+    
+    if action == "confirm":
+        # 确认发送
+        if user_openid in pending_replies:
+            reply_content = pending_replies[user_openid]["ai_reply"]
+            
+            # 调用微信云函数保存回复
+            save_result = await save_ferryman_reply(user_openid, reply_content)
+            
+            if save_result:
+                await edit_message_with_buttons(
+                    chat_id, message_id,
+                    f"✅ 已发送回复给用户\n\n💬 回复内容:\n{reply_content}",
+                    []
+                )
+                del pending_replies[user_openid]
+            else:
+                await edit_message_with_buttons(
+                    chat_id, message_id,
+                    f"⚠️ 回复已确认，但保存失败\n请手动保存回复内容:\n\n{reply_content}",
+                    []
+                )
+        else:
+            await send_message(chat_id, "❌ 未找到待确认的回复，可能已过期")
+            
+    elif action == "reject":
+        # 拒绝
+        await edit_message_with_buttons(
+            chat_id, message_id,
+            f"❌ 已拒绝该回复",
+            []
+        )
+        if user_openid in pending_replies:
+            del pending_replies[user_openid]
+    
+    return {"ok": True}
 
 
 @app.get("/team")
