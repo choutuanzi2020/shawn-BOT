@@ -484,21 +484,83 @@ async def show_messages(limit: int = 10):
     """查看最近的留言和回复记录"""
     import os
     local_file = "/tmp/ferryman_messages.json"
-    
+
     if not os.path.exists(local_file):
         return {"messages": [], "total": 0}
-    
+
     try:
         with open(local_file, 'r', encoding='utf-8') as f:
             messages = json.load(f)
-        
+
         # 返回最新的 N 条
         recent = messages[-limit:] if len(messages) > limit else messages
-        
+
         return {
             "messages": recent,
             "total": len(messages)
         }
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@app.get("/user-replies")
+async def get_user_replies(openid: str = None):
+    """
+    根据用户 OpenId 查询该用户的新回复
+    用于小程序内弹窗提醒
+    """
+    if not openid:
+        return {"ok": False, "error": "openid is required"}
+
+    local_file = "/tmp/ferryman_messages.json"
+
+    if not os.path.exists(local_file):
+        return {"ok": True, "replies": [], "new_count": 0}
+
+    try:
+        with open(local_file, 'r', encoding='utf-8') as f:
+            messages = json.load(f)
+
+        # 筛选该用户的回复
+        user_replies = [m for m in messages if m.get("user_openid") == openid and m.get("reply_content")]
+
+        # 返回最新的未读回复（只返回最近1条）
+        recent = user_replies[-1:] if user_replies else []
+
+        return {
+            "ok": True,
+            "replies": recent,
+            "new_count": len(recent)
+        }
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@app.post("/mark-reply-read")
+async def mark_reply_read(openid: str = None):
+    """
+    标记用户的回复已被阅读
+    """
+    if not openid:
+        return {"ok": False, "error": "openid is required"}
+
+    # 将已读标记写入共享存储
+    read_marker_file = "/tmp/ferryman_read_markers.json"
+    markers = {}
+
+    try:
+        if os.path.exists(read_marker_file):
+            with open(read_marker_file, 'r', encoding='utf-8') as f:
+                markers = json.load(f)
+    except:
+        pass
+
+    markers[openid] = datetime.now().isoformat()
+
+    try:
+        with open(read_marker_file, 'w', encoding='utf-8') as f:
+            json.dump(markers, f, ensure_ascii=False)
+        return {"ok": True}
     except Exception as e:
         return {"error": str(e)}
 
@@ -721,14 +783,18 @@ async def save_ferryman_reply(user_openid: str, reply_content: str) -> bool:
     """
     import json
     from datetime import datetime
-    
+
     # 获取待确认的原始数据
     pending = load_pending_reply(user_openid)
     user_message = pending.get("content", "") if pending else ""
     timestamp = pending.get("timestamp", "") if pending else ""
-    
+
+    # 生成唯一 ID
+    record_id = f"{user_openid}_{int(time.time() * 1000)}"
+
     # 记录数据
     record = {
+        "id": record_id,
         "user_openid": user_openid,
         "user_message": user_message,
         "reply_content": reply_content,
@@ -797,28 +863,18 @@ async def save_to_wechat_cloud(record: dict) -> bool:
         
         access_token = token_result["access_token"]
         
-        # 2. 保存到云数据库
+        # 2. 保存到云数据库 - 使用 JSON 格式避免转义问题
         db_url = f"https://api.weixin.qq.com/tcb/databaseadd?access_token={access_token}"
-        
-        # 转义字符串中的单引号
-        user_openid = record['user_openid'].replace("'", "\\'")
-        user_message = record['user_message'].replace("'", "\\'")
-        reply_content = record['reply_content'].replace("'", "\\'")
-        created_at = record['created_at'].replace("'", "\\'")
         
         payload = {
             "env": env_id,
-            "query": f"""
-                db.collection('ferryman_messages').add({{
-                    data: {{
-                        user_openid: '{user_openid}',
-                        user_message: '{user_message}',
-                        reply_content: '{reply_content}',
-                        created_at: '{created_at}',
-                        status: 'replied'
-                    }}
-                }})
-            """
+            "query": "db.collection('ferryman_messages').add({data: " + json.dumps({
+                "user_openid": record['user_openid'],
+                "user_message": record['user_message'],
+                "reply_content": record['reply_content'],
+                "created_at": record['created_at'],
+                "status": "replied"
+            }, ensure_ascii=False) + "})"
         }
         
         data = json.dumps(payload, ensure_ascii=False).encode('utf-8')
