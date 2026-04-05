@@ -300,8 +300,62 @@ async def root():
         "status": "ok",
         "bot": "渡劫情绪急救站 - 运营团队",
         "version": "6.0.0",
-        "mode": "AI团队 + 留言审核"
+        "mode": "AI团队 + 留言审核 + 告警监控"
     }
+
+
+@app.post("/alert")
+async def send_alert(request: Request):
+    """
+    接收告警通知，推送到 Telegram
+    POST body: {
+        "title": "告警标题",
+        "content": "告警内容",
+        "level": "warning|error|critical"  // 可选
+    }
+    """
+    try:
+        body = await request.json()
+    except Exception as e:
+        print(f"[Error] JSON解析失败: {e}")
+        return {"ok": False, "error": "Invalid JSON"}
+    
+    title = body.get("title", "🚨 告警通知")
+    content = body.get("content", "")
+    level = body.get("level", "warning")
+    
+    if not content:
+        return {"ok": False, "error": "Content is empty"}
+    
+    # 根据告警级别选择 emoji
+    level_emoji = {
+        "warning": "⚠️",
+        "error": "❌", 
+        "critical": "🚨"
+    }
+    emoji = level_emoji.get(level, "⚠️")
+    
+    # 格式化消息
+    from datetime import datetime
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    
+    alert_text = f"""{emoji} **{title}**
+━━━━━━━━━━━━━━━━━━
+{content}
+━━━━━━━━━━━━━━━━━━
+⏰ 时间: {timestamp}
+🤖 来源: 阿里云服务器监控"""
+
+    # 推送到 Telegram
+    admin_chat_id = os.getenv("ADMIN_CHAT_ID", "7549991042")
+    result = await send_message(admin_chat_id, alert_text)
+    
+    if result and result.get("ok"):
+        print(f"[告警] 已发送: {title}")
+        return {"ok": True, "message": "Alert sent"}
+    else:
+        print(f"[告警] 发送失败")
+        return {"ok": False, "error": "Failed to send"}
 
 
 @app.post("/telegram")
